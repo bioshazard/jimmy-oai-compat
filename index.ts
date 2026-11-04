@@ -39,7 +39,19 @@ Bun.serve({
 
         const text = await jimmyRes.text();
         console.log(`[${new Date().toISOString()}] Response received, length: ${text.length}`);
-        const content = text.split("<|stats|>")[0];
+        
+        let content = text;
+        let stats = null;
+        const statsMatch = text.match(/<\|stats\|>([\s\S]*?)<\|\/stats\|>/);
+        if (statsMatch) {
+          content = text.split("<|stats|>")[0];
+          try {
+            stats = JSON.parse(statsMatch[1]);
+            console.log(`[${new Date().toISOString()}] Parsed stats:`, stats);
+          } catch (e) {
+            console.log(`[${new Date().toISOString()}] Failed to parse stats JSON`);
+          }
+        }
 
         if (stream) {
           console.log(`[${new Date().toISOString()}] Returning streaming response`);
